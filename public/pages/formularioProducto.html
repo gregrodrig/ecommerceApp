@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario de productos</title>
+  <link rel="stylesheet" type="text/css" href="../../style.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <aside>
+      <header>
+        <h1 class="logo">Nuevo Producto</h1>
+      </header>
+      <nav>
+
+      </nav>
+      <footer>
+        <p class="texto-footer">© 2023 Greys'2 Coder </p>
+      </footer>
+    </aside>
+    <main>
+      <form id="formulario" onsubmit="submitForm(event)">
+        <div class="mb-3 row">
+          <label for="nombre">Nombre:</label>
+          <br>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div class="mb-3 row">
+          <label for="cantidad">Cantidad:</label>
+          <br>
+          <input type="number" id="cantidad" name="cantidad" required>
+        </div>
+        <div class="mb-3 row">
+          <label for="precio">Precio:</label>
+          <br>
+          <input type="number" id="precio" name="precio" step="0.01" required>
+        </div>
+        <div class="mb-3 row">
+          <label for="imagen">Imagen:</label>
+          <br>
+          <input type="file" id="imagen" name="imagen" accept="image/*" required>
+        </div>
+        <div class="mb-3 row">
+          <label for="descripcion">Descripción:</label>
+          <br>
+          <input id="descripcion" name="descripcion" required></input>
+        </div>
+        <div class="mb-3 row">
+          <label for="categoria">Categoría:</label>
+          <br>
+          <select id="categoria" name="categoria" required>
+            <option value="">Selecciona una categoría</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <div id="contenedor-botones-form">
+            <button id="btn-enviar" class="btn-enviar" type="submit">Enviar</button>
+            <button id="atras" onclick="goBack()">Ir Atrás</button>
+          </div>
+        </div>
+      </form>
+      <script>
+        const selectCategoria = document.getElementById("categoria");
+        let json = {}
+        fetch("https://localhost:7289/api/Categoria")
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Error en la solicitud");
+            }
+          })
+          .then(data => {
+            data.forEach(categoria => {
+              const option = document.createElement("option");
+              option.value = categoria.id;
+              option.textContent = categoria.nombre;
+              selectCategoria.appendChild(option);
+            });
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        function submitForm(event) {
+          event.preventDefault();
+          const select = document.getElementById("categoria");
+          const opcionSeleccionada = select.value;
+          const inputImagen = document.getElementById("imagen");
+          const imagenFile = inputImagen.files[0];
+          const reader = new FileReader();
+          reader.readAsDataURL(imagenFile);
+          reader.onload = () => {
+            const imagenbase64 = reader.result;
+            const json = {
+              id: 0,
+              nombre: document.getElementById('nombre').value,
+              cantidad: document.getElementById('cantidad').value,
+              precio: document.getElementById('precio').value,
+              imagen: imagenbase64,
+              descripcion: document.getElementById('descripcion').value,
+              categoriaId: opcionSeleccionada,
+              categoria: {
+                id: opcionSeleccionada,
+                Nombre: "xcvxc"
+              }
+            };
+            console.log(JSON.stringify(json));
+            fetch('https://localhost:7289/api/Articulo', {
+              method: 'POST',
+              body: JSON.stringify(json),
+              headers: { 'Content-Type': 'application/json' }
+            })
+              .then(response => response.json())
+              .then(data => {
+                console.log(data);
+                formulario.reset();
+                alert("Producto agregar con exito!")
+              })
+              .catch(error => console.error(error));
+          };
+        }
+      </script>
+      <script>
+        function goBack() {
+          window.history.back();
+        }
+      </script>
+    </main>
+    <section>
+
+    </section>
+  </div>
+</body>
+
+</html>

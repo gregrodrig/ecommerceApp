@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulario de Stock</title>
+  <link rel="stylesheet" type="text/css" href="../../style.css">
+</head>
+
+<body>
+  <div class="wrapper">
+    <aside>
+      <header>
+        <h1 class="logo">Añadir Stock a Producto</h1>
+      </header>
+      <nav>
+      </nav>
+      <footer>
+        <p class="texto-footer">© 2023 Greys'2 Coder </p>
+      </footer>
+    </aside>
+    <main>
+      <form id="formulario" onsubmit="submitForm(event)">
+        <div class="mb-3 row">
+          <label for="articulo">Articulo:</label>
+          <br>
+          <select id="articulo" name="articulo" required>
+            <option value="" optiontext=articulo.nombre>Selecciona un Articulo</option>
+          </select>
+        </div>
+        <div class="mb-3 row">
+          <label for="cantidad">Cantidad:</label>
+          <br>
+          <input type="text" id="cantidad" name="cantidad" required>
+        </div>
+        <div class="mb-3">
+          <div id="contenedor-botones-form">
+            <button id="btn-enviar" class="btn-enviar" type="submit">Enviar</button>
+            <button id="atras" onclick="goBack()">Ir Atrás</button>
+          </div>
+        </div>
+        <script>
+          function submitForm(event) {
+            event.preventDefault();
+            const articuloID = document.getElementById("articulo");
+            const opcionSeleccionada = articuloID.value;
+            const cantidad = document.getElementById('cantidad');
+            const cantidadStock = cantidad.value;
+
+            fetch(`https://localhost:7289/api/Articulo/${opcionSeleccionada}/aumentar-cantidad/${cantidadStock}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' }
+            })
+              .then(response => response.json())
+              .then(data => {
+                console.log(data);
+                formulario.reset();
+                alert(`Stock agregado con exito!`)
+              })
+              .catch(error => console.error(error));
+          }
+        </script>
+      </form>
+      <script>
+        const selectArticulo = document.getElementById("articulo");
+        let json = {}
+        fetch("https://localhost:7289/api/Articulo")
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Error en la solicitud");
+            }
+          })
+          .then(data => {
+            data.forEach(articulo => {
+              const option = document.createElement("option");
+              option.value = articulo.id;
+              option.textContent = `${articulo.nombre}, Stock: [ ${articulo.cantidad} ]`;
+              selectArticulo.appendChild(option);
+            });
+          })
+          .catch(error => {
+            console.error(error);
+          });       
+      </script>
+      <script>
+        function goBack() {
+          window.history.back();
+        }
+      </script>
+    </main>
+    <section>
+    </section>
+  </div>
+</body>
+
+</html>
